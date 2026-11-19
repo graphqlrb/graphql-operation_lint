@@ -1,0 +1,9 @@
+rules:
+  unique-operation-name: error
+  unique-fragment-name: error
+  no-unused-fragments: warning
+  no-deprecated: warning
+  no-anonymous-operations: error
+  naming-convention: warning
+  selection-set-depth: warning
+  no-duplicate-fields: warning

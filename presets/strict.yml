@@ -1,0 +1,9 @@
+extends: recommended
+rules:
+  match-document-filename: warning
+  max-operations-per-file: warning
+  lone-executable-definition: warning
+  max-aliases: warning
+  max-root-fields: warning
+  max-selections: warning
+  require-selections: warning

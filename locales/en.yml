@@ -1,0 +1,158 @@
+---
+rules:
+  unique-operation-name:
+    duplicate:
+      message: Operation `%{name}` is already defined.
+      suggestion: Use a name that is unique in the selected scope.
+  unique-fragment-name:
+    duplicate:
+      message: Fragment `%{name}` is already defined.
+      suggestion: Use a unique name and update the corresponding fragment spreads.
+  no-unused-fragments:
+    unused:
+      message: Fragment `%{name}` is unused.
+      suggestion: Remove the fragment or spread it from an operation.
+  no-one-place-fragments:
+    single_spread:
+      message: Fragment `%{name}` is spread in only one place.
+      suggestion: Inline the fragment at its spread.
+  no-deprecated:
+    deprecated:
+      message: "`%{operation}` uses deprecated %{kind} `%{coordinate}`. Deprecation
+        reason: %{reason}."
+      suggestion: Migrate to the alternative described in the deprecation reason.
+  no-anonymous-operations:
+    anonymous:
+      message: The operation `%{operation}` has no name.
+      suggestion: Give the operation a unique name.
+  naming-convention:
+    invalid:
+      message: The %{kind} name `%{name}` does not follow the naming convention.
+      suggestion: Choose a name such as `%{candidate}`.
+    fragment_prefix:
+      message: Fragment `%{name}` does not start with its type condition `%{type}`.
+      suggestion: Rename the fragment to `%{candidate}` and update its spreads.
+  match-document-filename:
+    mismatch:
+      message: Filename `%{actual}` does not follow the naming convention. Expected
+        `%{expected}`.
+      suggestion: Rename the file to `%{expected}`.
+  max-operations-per-file:
+    exceeded:
+      message: The file has %{count} definitions, exceeding the limit of %{max}.
+      suggestion: Split the definitions into separate files.
+  lone-executable-definition:
+    mixed:
+      message: This file contains more than one executable definition.
+      suggestion: Move each definition to its own file.
+  selection-set-depth:
+    exceeded:
+      message: 'Operation `%{operation}` reaches depth %{count}, exceeding %{max}.
+        Deepest path: %{path}.'
+      suggestion: Split the operation or remove unnecessary nested selections.
+  max-aliases:
+    exceeded:
+      message: Operation `%{operation}` has %{count} aliases, exceeding %{max}.
+      suggestion: Remove unnecessary aliases or split the operation.
+  max-root-fields:
+    exceeded:
+      message: Operation `%{operation}` selects %{count} root fields, exceeding %{max}.
+      suggestion: Split the root field selections across operations.
+  max-selections:
+    exceeded:
+      message: Operation `%{operation}` selects %{count} fields, exceeding %{max}.
+      suggestion: Remove unnecessary field selections or split the operation.
+  require-selections:
+    missing:
+      message: The selection set on `%{type}` does not select `%{field}`.
+      suggestion: Add a selection for `%{field}`.
+  no-duplicate-fields:
+    duplicate:
+      message: Field `%{field}` is selected more than once with the same response
+        key and arguments.
+      suggestion: Combine these selections into one field selection.
+  restricted-fields:
+    restricted:
+      message: The schema element `%{coordinate}` is restricted.
+      suggestion: Use a permitted schema element at this location.
+    custom:
+      message: "%{text}"
+      suggestion: Use a permitted schema element at this location.
+  spec/executable-definitions:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/fields-on-correct-type:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/fragments-on-composite-type:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/known-argument-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/known-directives:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/known-fragment-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/known-operation-types:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/known-type-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/lone-anonymous-operation:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/no-fragment-cycles:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/no-undefined-variables:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/no-unused-variables:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/one-field-subscriptions:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/one-of-input-objects:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/other:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/overlapping-fields-can-be-merged:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/possible-fragment-spread:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/provided-required-arguments:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/scalar-leafs:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/unique-argument-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/unique-directives-per-location:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/unique-input-field-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/unique-variable-names:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/value-literals-of-correct-type:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/variables-are-input-types:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'
+  spec/variables-in-allowed-position:
+    message: '%{detail}'
+    suggestion: 'Update the document to satisfy the GraphQL validation rule.'

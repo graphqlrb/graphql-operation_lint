@@ -1,0 +1,4 @@
+extends: strict
+rules:
+  no-one-place-fragments: warning
+  restricted-fields: error
