@@ -108,7 +108,7 @@ module GraphQL
 
         loaded = Core::SchemaLoader.load(sources, prelude: settings.fetch("prelude"),
           skip_checks: settings.fetch("skip_checks"), emit_generated_sdl: settings["emit_generated_sdl"],
-          repository: @settings.dig("git", "repository"), locale: @settings.fetch("locale"))
+          repository: @settings.dig("git", "repository"))
         @diagnostics.concat(loaded.diagnostics)
         @sources.concat(loaded.sources)
         loaded
@@ -135,9 +135,8 @@ module GraphQL
         else
           skipped = @rules.count { |_id, (rule, *)| rule.requires_schema? }
           if skipped.positive?
-            message = @settings["locale"] == "ja" ? "Schema が指定されていないため、#{skipped} 件のルールをスキップしました。" :
-              "Skipped #{skipped} rules because no schema was supplied."
-            diagnostics << Core::Diagnostic.new(rule_id: "operation/schema-less", severity: :info, message: message,
+            diagnostics << Core::Diagnostic.new(rule_id: "operation/schema-less", severity: :info,
+              message: "Skipped #{skipped} rules because no schema was supplied.",
               data: { skipped_rules: skipped })
           end
         end
@@ -151,22 +150,13 @@ module GraphQL
           _, severity, _, exclusions = config
           next if excluded?(diagnostic, exclusions, exclusions.map { |pattern| Core::CoordinatePattern.new(pattern) })
 
-          localize_spec(diagnostic, severity)
+          Core::Diagnostic.new(rule_id: diagnostic.rule_id, severity: severity, message: diagnostic.message,
+            suggestion: diagnostic.suggestion || "Update the document to satisfy the GraphQL validation rule.",
+            message_key: diagnostic.message_key, location: diagnostic.location, coordinate: diagnostic.coordinate,
+            subject: diagnostic.subject, related: diagnostic.related, operations: diagnostic.operations,
+            data: diagnostic.data, fingerprint: diagnostic.fingerprint, fatal: diagnostic.fatal,
+            suppressed_by: diagnostic.suppressed_by)
         end
-      end
-
-      def localize_spec(diagnostic, severity)
-        text = translations.fetch(diagnostic.rule_id, {})
-        values = diagnostic.data.transform_keys(&:to_s).merge(diagnostic.data.fetch(:extensions, {}))
-        values["detail"] = diagnostic.message
-        message = text.fetch("message", "%{detail}").gsub(/%\{([a-zA-Z0-9_]+)\}/) do
-          value = values[Regexp.last_match(1)]
-          value.is_a?(Array) ? value.join(" → ") : (value || diagnostic.message).to_s
-        end
-        Core::Diagnostic.new(rule_id: diagnostic.rule_id, severity: severity, message: message,
-          suggestion: text["suggestion"] || diagnostic.suggestion, message_key: diagnostic.message_key,
-          location: diagnostic.location, related: diagnostic.related, operations: diagnostic.operations,
-          data: diagnostic.data, fingerprint: diagnostic.fingerprint, fatal: diagnostic.fatal)
       end
 
       def convention_diagnostics(set, index)
@@ -175,8 +165,7 @@ module GraphQL
           next if id.start_with?("spec/") || (!index && rule.requires_schema?)
 
           buffer = []
-          instance = rule.new(options: options, severity: severity, diagnostics: buffer, locale: @settings.fetch("locale"),
-            translations: translations.fetch(id, {}))
+          instance = rule.new(options: options, severity: severity, diagnostics: buffer)
           invoke(instance, :setup, context)
           ActiveRule.new(instance: instance, diagnostics: buffer, exclude: exclusions,
             paths: exclusions.map { |pattern| Core::CoordinatePattern.new(pattern) })
@@ -223,11 +212,6 @@ module GraphQL
         @diagnostics << Core::Diagnostic.new(rule_id: "core/rule-error", severity: :error,
           message: "Rule `#{rule.class.id}` failed: #{error.message}",
           data: { rule: rule.class.id }, location: (args.first.location if args.first.respond_to?(:location)))
-      end
-
-      def translations
-        @translations ||= Psych.safe_load_file(File.join(ROOT, "locales", "#{@settings.fetch('locale')}.yml"), aliases: false)
-          .fetch("rules", {})
       end
 
       def excluded?(diagnostic, patterns, coordinates)

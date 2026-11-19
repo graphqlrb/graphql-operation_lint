@@ -37,12 +37,22 @@ class OperationLintTest < Minitest::Test
       assert_includes ids(result), id
     end
     refute_includes ids(result), "spec/fields-on-correct-type"
+    assert_match(/Skipped \d+ rules because no schema was supplied\./, diagnostic(result, "operation/schema-less").message)
   end
 
   def test_spec_rules_can_be_disabled
     documents = { "query.gql" => "query GetUser { user { missing } }" }
     assert_includes ids(lint(documents, schema: schema)), "spec/fields-on-correct-type"
     assert_empty ids(lint(documents, schema: schema, rules: { "spec/fields-on-correct-type" => "off" }))
+  end
+
+  def test_spec_rule_uses_configured_severity_and_reports_how_to_fix_unresolved_fragment
+    result = lint({ "a.gql" => "query Q { ...Missing }" }, rules: { "spec/known-fragment-names" => "warning" })
+    finding = diagnostic(result, "spec/known-fragment-names")
+
+    assert_equal :warning, finding.severity
+    assert_equal "Fragment `Missing` could not be resolved.", finding.message
+    assert_equal "Update the document to satisfy the GraphQL validation rule.", finding.suggestion
   end
 
   def test_duplicates_report_related_definition_and_can_use_directory_scope
@@ -85,9 +95,8 @@ class OperationLintTest < Minitest::Test
     findings = result.diagnostics.select { |diagnostic| diagnostic.rule_id == "no-deprecated" }
     assert_equal %w[Query.user(oldArgument:) Search.oldFilter Tag.OLD User.legacy], findings.map(&:coordinate)
     assert findings.all? { |diagnostic| diagnostic.operations == %w[GetUser ListUsers] }
-    assert_match(/Use name/, findings.last.message)
-    localized = lint(documents, schema: schema, config: { locale: "ja" })
-    assert_match(/非推奨/, diagnostic(localized, "no-deprecated").message)
+    assert_match(/uses deprecated field `User.legacy`\. Deprecation reason: Use name\./, findings.last.message)
+    assert_equal "Migrate to the alternative described in the deprecation reason.", findings.last.suggestion
   end
 
   def test_naming_and_filename_options
@@ -193,15 +202,6 @@ class OperationLintTest < Minitest::Test
     assert_equal "shared.gql", finding.first.location.path
     assert_equal "Avoid `User.friends`.", finding.first.message
     refute_includes ids(lint(documents, rules: options)), "app/limit-friends"
-  end
-
-  def test_locales_cover_every_builtin_rule_and_message
-    root = GraphQL::OperationLint::ROOT
-    locales = %w[en ja].to_h { |locale| [locale, Psych.safe_load_file(File.join(root, "locales", "#{locale}.yml")).fetch("rules")] }
-    assert_equal GraphQL::OperationLint::BUILT_INS.keys.sort, locales.fetch("en").keys.sort
-    locales.fetch("en").each do |id, entry|
-      assert_equal entry.keys.sort, locales.fetch("ja").fetch(id).keys.sort, id
-    end
   end
 
   def test_invalid_options_and_yaml_keys_are_configuration_errors
